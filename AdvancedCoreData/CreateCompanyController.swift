@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import CoreData
+
+
 //delegating class is where the event is fired and the delegate class is the one that handles the event for the delegating class
 
 // delegatingCLASS reguirements:
@@ -21,16 +24,21 @@ import UIKit
 
 
 protocol createCompanyControllerDelegate{
-    func createCompany(company:company)
+    func createCompany(company:Company)
+    func didEditCompany(company: Company)
+
 }
 
 class CreateCompanyController: ViewController {
     var delegate:createCompanyControllerDelegate?
-    
+    var company:Company?{
+        didSet{
+            nameTextField.text = company?.name ?? "incoorect "
+        }
+    }
     lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.text = "Name"
-        label.backgroundColor = .red
         //enable autolayout
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -39,8 +47,6 @@ class CreateCompanyController: ViewController {
     lazy var  nameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Enter name"
-        textField.backgroundColor = .red
-
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -59,16 +65,19 @@ class CreateCompanyController: ViewController {
         
     }
     private func setupUI() {
+      
+        
         let lightBlueBackgroundView = UIView()
         lightBlueBackgroundView.backgroundColor = UIColor.lightBlue
         lightBlueBackgroundView.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(lightBlueBackgroundView)
-        
         lightBlueBackgroundView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         lightBlueBackgroundView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         lightBlueBackgroundView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         lightBlueBackgroundView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        
+        
         
         
         view.addSubview(nameLabel)
@@ -86,16 +95,66 @@ class CreateCompanyController: ViewController {
         nameTextField.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         nameTextField.bottomAnchor.constraint(equalTo: nameLabel.bottomAnchor).isActive = true
         nameTextField.topAnchor.constraint(equalTo: nameLabel.topAnchor).isActive = true
+      
     }
+    //if company already present in coredata then do edit otherwise create new comapny object
     @objc private func handleSave() {
-        guard let name = nameTextField.text else {return}
-        let comp = company(name: name, founded: Date())
-        dismiss(animated: true) {
-            self.delegate?.createCompany(company: comp)
+        if company == nil {
+            createCompany()
+        } else {
+            saveCompanyChanges()
         }
     }
+    private func createCompany(){
+        guard let name = nameTextField.text else {return}
+        //        let comp = Company(name: name, founded: Date())
+        //        dismiss(animated: true) {
+        //            self.delegate?.createCompany(company: comp)
+        //        }
+        
+        // temporary area
+        let context =  CoreDataManager.shared.container.viewContext
+        //craete new object for company entity  in coredata
+        //entityname and attribute key already set in data model
+        let company = NSEntityDescription.insertNewObject(forEntityName: "Company", into: context)
+        company.setValue(name, forKey: "name")
+        
+        // save in core data
+        do{
+            try  context.save()
+            print("saving in coredata")
+            dismiss(animated: true) {
+                self.delegate?.createCompany(company: company as! Company)
+            }
+            
+        }
+        catch let err {
+            print("Failed to save company:", err)
+            
+        }
+        
+        
+    }
+    private func saveCompanyChanges() {
+        let context = CoreDataManager.shared.container.viewContext
+        
+        company?.name = nameTextField.text
+        
+        do {
+            try context.save()
+            
+            // save succeeded
+            dismiss(animated: true, completion: {
+                self.delegate?.didEditCompany(company: self.company!)
+            })
+            
+        } catch let saveErr {
+            print("Failed to save company changes:", saveErr)
+        }
+    }
+    
     @objc private func handleCancel() {
-dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: nil)
         
     }
     

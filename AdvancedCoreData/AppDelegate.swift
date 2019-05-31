@@ -24,11 +24,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         //appearance for all screens
         //for texts in navbar
-        UINavigationBar.appearance().tintColor = .black
+        UINavigationBar.appearance().tintColor = .white
         //for background of navbar
           UINavigationBar.appearance().barTintColor = .lightRed
+        UINavigationBar.appearance().isTranslucent = false
+
         UINavigationBar.appearance().prefersLargeTitles = true
-        UINavigationBar.appearance().isTranslucent = true
         
         //when large title becomes small this will work
         UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
