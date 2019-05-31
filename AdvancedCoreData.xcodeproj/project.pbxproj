@@ -14,6 +14,7 @@
 		1681394722A0BC8500AB35C2 /* CompaniesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1681394622A0BC8500AB35C2 /* CompaniesController.swift */; };
 		1681394922A0BD5800AB35C2 /* Uicolor+theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1681394822A0BD5800AB35C2 /* Uicolor+theme.swift */; };
 		1681394B22A0BF2F00AB35C2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1681394A22A0BF2F00AB35C2 /* Assets.xcassets */; };
+		1681394D22A0C59300AB35C2 /* CreateCompanyController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1681394C22A0C59300AB35C2 /* CreateCompanyController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		1681394622A0BC8500AB35C2 /* CompaniesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompaniesController.swift; sourceTree = "<group>"; };
 		1681394822A0BD5800AB35C2 /* Uicolor+theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Uicolor+theme.swift"; sourceTree = "<group>"; };
 		1681394A22A0BF2F00AB35C2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1681394C22A0C59300AB35C2 /* CreateCompanyController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateCompanyController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				1681394022A0BC4600AB35C2 /* Info.plist */,
 				1681394622A0BC8500AB35C2 /* CompaniesController.swift */,
 				1681394822A0BD5800AB35C2 /* Uicolor+theme.swift */,
+				1681394C22A0C59300AB35C2 /* CreateCompanyController.swift */,
 			);
 			path = AdvancedCoreData;
 			sourceTree = "<group>";
@@ -143,6 +146,7 @@
 			files = (
 				1681393722A0BC4400AB35C2 /* ViewController.swift in Sources */,
 				1681394922A0BD5800AB35C2 /* Uicolor+theme.swift in Sources */,
+				1681394D22A0C59300AB35C2 /* CreateCompanyController.swift in Sources */,
 				1681394722A0BC8500AB35C2 /* CompaniesController.swift in Sources */,
 				1681393522A0BC4400AB35C2 /* AppDelegate.swift in Sources */,
 			);

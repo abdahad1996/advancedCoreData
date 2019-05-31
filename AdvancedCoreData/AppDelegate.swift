@@ -23,11 +23,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         //appearance for all screens
-//        UINavigationBar.appearance().tintColor = .black
+        //for texts in navbar
+        UINavigationBar.appearance().tintColor = .black
         //for background of navbar
           UINavigationBar.appearance().barTintColor = .lightRed
         UINavigationBar.appearance().prefersLargeTitles = true
         UINavigationBar.appearance().isTranslucent = true
+        
+        //when large title becomes small this will work
         UINavigationBar.appearance().titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
 
         UINavigationBar.appearance().largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
@@ -38,6 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         
         window = UIWindow()
+        window?.makeKeyAndVisible()
         let navigationController = customNavigationController(rootViewController: CompaniesController())
         window?.rootViewController = navigationController
         return true
