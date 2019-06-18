@@ -29,11 +29,22 @@ protocol createCompanyControllerDelegate{
 
 }
 
-class CreateCompanyController: ViewController {
+class CreateCompanyController: UIViewController,UIImagePickerControllerDelegate,UINavigationControllerDelegate {
     var delegate:createCompanyControllerDelegate?
+    
+    //if company already exists than show everything for editing
     var company:Company?{
-        didSet{
-            nameTextField.text = company?.name ?? "incoorect "
+        didSet {
+            nameTextField.text = company?.name
+            
+            if let imageData = company?.image{
+                companyImageView.image = UIImage(data: imageData)
+                setupCircularImageStyle()
+            }
+            
+            guard let founded = company?.founded else { return }
+            
+            datePicker.date = founded
         }
     }
     lazy var nameLabel: UILabel = {
@@ -50,7 +61,67 @@ class CreateCompanyController: ViewController {
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
+    
+    let datePicker: UIDatePicker = {
+        let dp = UIDatePicker()
+        dp.datePickerMode = .date
+        dp.translatesAutoresizingMaskIntoConstraints = false
+        return dp
+    }()
 
+    
+    lazy var companyImageView: UIImageView = {
+        let imageView = UIImageView(image: #imageLiteral(resourceName: "select_photo_empty"))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.contentMode = .scaleAspectFill
+        imageView.isUserInteractionEnabled = true // remember to do this, otherwise image views by default are not interactive
+        
+        imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleSelectPhoto)))
+        
+        return imageView
+    }()
+    
+    @objc private func handleSelectPhoto() {
+        print("Trying to select photo...")
+        
+        let imagePickerController = UIImagePickerController()
+        
+        imagePickerController.delegate = self
+        imagePickerController.allowsEditing = true
+        
+        present(imagePickerController, animated: true, completion: nil)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        dismiss(animated: true, completion: nil)
+    }
+    
+  
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        if let editedImage = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
+            companyImageView.image = editedImage
+        }
+        else if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            companyImageView.image = originalImage
+
+        }
+        setupCircularImageStyle()
+        
+        dismiss(animated: true, completion: nil)
+        
+    }
+    
+    
+    func setupCircularImageStyle(){
+        companyImageView.layer.cornerRadius = companyImageView.frame.width / 2
+        companyImageView.clipsToBounds = true
+        companyImageView.layer.borderColor = UIColor.darkBlue.cgColor
+        companyImageView.layer.borderWidth = 2
+    }
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        navigationItem.title = company == nil ? "Create Company" : "Edit Company"
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
@@ -72,16 +143,21 @@ class CreateCompanyController: ViewController {
         lightBlueBackgroundView.translatesAutoresizingMaskIntoConstraints = false
         
         view.addSubview(lightBlueBackgroundView)
+        
         lightBlueBackgroundView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         lightBlueBackgroundView.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
         lightBlueBackgroundView.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
-        lightBlueBackgroundView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        lightBlueBackgroundView.heightAnchor.constraint(equalToConstant: 350).isActive = true
         
-        
+        view.addSubview(companyImageView)
+        companyImageView.topAnchor.constraint(equalTo: view.topAnchor, constant: 8).isActive = true
+        companyImageView.heightAnchor.constraint(equalToConstant: 100).isActive = true
+        companyImageView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        companyImageView.widthAnchor.constraint(equalToConstant: 100).isActive = true
         
         
         view.addSubview(nameLabel)
-        nameLabel.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+        nameLabel.topAnchor.constraint(equalTo: companyImageView.bottomAnchor).isActive = true
         nameLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: 16).isActive = true
         
         
@@ -95,6 +171,15 @@ class CreateCompanyController: ViewController {
         nameTextField.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
         nameTextField.bottomAnchor.constraint(equalTo: nameLabel.bottomAnchor).isActive = true
         nameTextField.topAnchor.constraint(equalTo: nameLabel.topAnchor).isActive = true
+        
+        // setup the date picker here
+        
+        view.addSubview(datePicker)
+        datePicker.topAnchor.constraint(equalTo: nameLabel.bottomAnchor).isActive = true
+        datePicker.leftAnchor.constraint(equalTo: view.leftAnchor).isActive = true
+        datePicker.rightAnchor.constraint(equalTo: view.rightAnchor).isActive = true
+        datePicker.bottomAnchor.constraint(equalTo: lightBlueBackgroundView.bottomAnchor).isActive = true
+        
       
     }
     //if company already present in coredata then do edit otherwise create new comapny object
@@ -106,18 +191,23 @@ class CreateCompanyController: ViewController {
         }
     }
     private func createCompany(){
-        guard let name = nameTextField.text else {return}
-        //        let comp = Company(name: name, founded: Date())
-        //        dismiss(animated: true) {
-        //            self.delegate?.createCompany(company: comp)
+      
         //        }
         
         // temporary area
+        // context associated with main queue
         let context =  CoreDataManager.shared.container.viewContext
+        
         //craete new object for company entity  in coredata
         //entityname and attribute key already set in data model
+        
         let company = NSEntityDescription.insertNewObject(forEntityName: "Company", into: context)
-        company.setValue(name, forKey: "name")
+        company.setValue(nameTextField.text, forKey: "name")
+        company.setValue(datePicker.date, forKey: "founded")
+        if let companyImage = companyImageView.image {
+            let imageData = companyImage.jpegData(compressionQuality: 0.4)
+            company.setValue(imageData, forKey: "image")
+        }
         
         // save in core data
         do{
@@ -139,6 +229,12 @@ class CreateCompanyController: ViewController {
         let context = CoreDataManager.shared.container.viewContext
         
         company?.name = nameTextField.text
+        company?.founded = datePicker.date
+        
+        if let companyImage = companyImageView.image {
+            let imageData = companyImage.jpegData(compressionQuality: 0.8)
+            company?.image = imageData
+        }
         
         do {
             try context.save()
